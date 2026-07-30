@@ -8,15 +8,15 @@ Proof of completion for the CKB **Store Data on Cell** tutorial running on a loc
 
 ### CLI Installation
 Verified `@offckb/cli` installation.
-![OffCKB Install](OFFCKB-SETUP/offckb_install.png)
+![OffCKB Install](./OFFCKB-SETUP/offckb_install.png)
 
 ### Running Local Devnet
 Started the local CKB node.
-![Start OffCKB Node](OFFCKB-SETUP/start_offckb.png)
+![Start OffCKB Node](./OFFCKB-SETUP/start_offckb.png)
 
 ### Pre-funded Accounts
 Checked the genesis accounts to extract the private key for the dApp.
-![OffCKB Accounts](OFFCKB-SETUP/offckb_acc.png)
+![OffCKB Accounts](./OFFCKB-SETUP/offckb_acc.png)
 
 ---
 
@@ -24,16 +24,16 @@ Checked the genesis accounts to extract the private key for the dApp.
 
 ### Start Frontend
 Launched the local development server for the frontend application.
-![Start DApp](STORE-DATA/start_dapp.png)
+![Start DApp](./STORE-DATA/start_dapp.png)
 
 ### Message Encode Preview
 Inputting UTF-8 text and verifying the real-time Hex encoding preview before broadcasting.
-![Encode and Decode](STORE-DATA/encode_decode.png)
+![Encode and Decode](./STORE-DATA/encode_decode.png)
 
 ### Transaction Building & Broadcast
 Clicking **Write to Chain** compiles, signs, and broadcasts the transaction, dynamically showing the Transaction Hash.
-![Building the Transaction](STORE-DATA/build_tx.png)
+![Building the Transaction](./STORE-DATA/build_tx.png)
 
 ### Cell Data Retrieval & Decode
 Querying the Live Cell data via RPC and decoding the raw Hex payload back to the original text message.
-![Retrieving Live Cell Data](STORE-DATA/Retrieving.png)
+![Retrieving Live Cell Data](./STORE-DATA/Retrieving.png)
