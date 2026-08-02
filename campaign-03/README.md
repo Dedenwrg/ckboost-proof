@@ -11,17 +11,17 @@ Get started on CKB by completing a tutorial (Build a Simple Lock) and sharing an
 ### CLI Installation
 
 Verified `@offckb/cli` installation.
-![OffCKB Install](./OFFCKB-SETUP/offckb_install.png)
+![OffCKB Install](../campaign-02/OFFCKB-SETUP/offckb_install.png)
 
 ### Running Local Devnet
 
 Started the local CKB node.
-![Start OffCKB Node](./OFFCKB-SETUP/start_offckb.png)
+![Start OffCKB Node](../campaign-02/OFFCKB-SETUP/start_offckb.png)
 
 ### Pre-funded Accounts
 
 Checked the genesis accounts to extract the private key for the dApp.
-![OffCKB Accounts](./OFFCKB-SETUP/offckb_acc.png)
+![OffCKB Accounts](../campaign-02/OFFCKB-SETUP/offckb_acc.png)
 
 ---
 
@@ -32,8 +32,9 @@ Checked the genesis accounts to extract the private key for the dApp.
 Compiled the contract using `pnpm install` and `pnpm build`.
 ![Build Script](./BUILD-DEPLOY/build-contract.png)
 
-**Issue Encountered & Debugging:**
-During the initial build, an error occurred because `ckb-debugger` was missing from the system. This dependency is not mentioned in the [official tutorial](https://docs.nervos.org/docs/dapp/simple-lock), but the build script relies on it to validate the compiled bytecode. To resolve this, I followed the [Debug with ckb-debugger](https://docs.nervos.org/docs/script/rust/rust-debug#debug-with-ckb-debugger) documentation to install it.
+> **Issue Encountered & Debugging:**
+> During the initial build, an error occurred because `ckb-debugger` was missing from the system. This dependency is not mentioned in the [official tutorial](https://docs.nervos.org/docs/dapp/simple-lock), but the build script relies on it to validate the compiled bytecode. To resolve this, I followed the [Debug with ckb-debugger](https://docs.nervos.org/docs/script/rust/rust-debug#debug-with-ckb-debugger) documentation to install it.
+
 ![Build Error](./BUILD-DEPLOY/build-error.png)
 
 
