@@ -11,7 +11,9 @@ This repository contains proof-of-completion documentation for the CKB Boost cam
 │   ├── STORE-DATA/
 │   └── README.md
 ├── campaign-03/
-│   ├── .gitkeep
+│   ├── BUILD-DEPLOY/
+│   ├── DAPP/
+│   ├── OFFCKB-SETUP/
 │   └── README.md
 └── README.md
 ```
@@ -21,7 +23,7 @@ This repository contains proof-of-completion documentation for the CKB Boost cam
 | Campaign | Title | Status |
 |----------|-------|--------|
 | `campaign-02` | Store Data on Cell | ✅ Completed |
-| `campaign-03` | Build a Simple Lock | 🚧 In Progress |
+| `campaign-03` | Build a Simple Lock | ✅ Completed |
 
 ## Contents
 
@@ -49,7 +51,14 @@ Based on the **Build on CKB: Campaign #03** challenge.
 
 > Get started on CKB by completing the **Build a Simple Lock** tutorial and sharing an interesting reflection.
 
-Documentation and screenshots will be added after completing the tutorial.
+Proof of completion for the **Build a Simple Lock** tutorial, including:
+
+- Building and deploying the Lock Script
+- DApp frontend execution
+- Depositing CKB to the `hash_lock` address
+- Building the transaction
+- Transferring and unlocking tokens with a preimage
+
 
 📄 Documentation: [`campaign-03/README.md`](campaign-03/README.md)
 
