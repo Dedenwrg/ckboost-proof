@@ -1,6 +1,6 @@
 # Build on CKB: Campaign #03
 
-Get started on CKB by completing a tutorial (Build a Simple Lock) and sharing an interesting reflection!
+Get started on CKB by completing a tutorial (Build a Simple Lock)
 
 ---
 
@@ -36,7 +36,6 @@ Compiled the contract using `pnpm install` and `pnpm build`.
 > During the initial build, an error occurred because `ckb-debugger` was missing from the system. This dependency is not mentioned in the [official tutorial](https://docs.nervos.org/docs/dapp/simple-lock), but the build script relies on it to validate the compiled bytecode. To resolve this, I followed the [Debug with ckb-debugger](https://docs.nervos.org/docs/script/rust/rust-debug#debug-with-ckb-debugger) documentation to install it.
 
 ![Build Error](./BUILD-DEPLOY/build-error.png)
-
 
 ### Deploy the Script
 
