@@ -9,7 +9,11 @@ import { DemoMarkdown } from "../../../components/articles/DemoMarkdown";
 import { articlePriceShannons, type Article } from "../../../lib/articles";
 import { parseOffer } from "../../../lib/offer";
 import { validateOffer } from "../../../lib/payment";
-import { articleLiquidityIssue, formatArticlePrice, MAX_ROUTING_FEE_SHANNONS } from "../../../lib/payment-config";
+import {
+  articleLiquidityIssue,
+  formatArticlePrice,
+  MAX_ROUTING_FEE_SHANNONS,
+} from "../../../lib/payment-config";
 import { encryptedInvoiceExpiresAt } from "../../../lib/payment-submission";
 import { useArticles } from "../../../providers/ArticleProvider";
 import { useFiber } from "../../../providers/FiberProvider";
@@ -65,20 +69,28 @@ function ArticleReader({ article }: { article: Article }) {
   const [invoiceExpired, setInvoiceExpired] = useState(false);
   const receipt = receipts[article.id];
   const content = unlocked[article.id];
-  const source = article.source ?? (article.id === "demo-fiber" ? "https://www.fiber.world/docs"
-    : article.id === "demo-fiber-channels" ? "https://www.fiber.world/docs/how-it-works" : undefined);
+  const source =
+    article.source ??
+    (article.id === "demo-fiber"
+      ? "https://www.fiber.world/docs"
+      : article.id === "demo-fiber-channels"
+        ? "https://www.fiber.world/docs/how-it-works"
+        : undefined);
   const failed = !submitting && receipt?.status === "Failed";
   const expired = invoiceExpired || expiredArticleIds.has(article.id);
   const replaced = Boolean(article.supersededBy);
   const closed = expired || replaced;
   const amount = articlePriceShannons(article);
   const price = formatArticlePrice(amount);
-  const liquidityIssue = fiber.routeReady ? articleLiquidityIssue(
-    amount,
-    BigInt(fiber.channels.buyer?.local_balance ?? 0),
-    BigInt(fiber.channels.seller?.remote_balance ?? 0),
-  ) : null;
-  const pending = !content && (submitting || (Boolean(article.attempt) && !failed));
+  const liquidityIssue = fiber.routeReady
+    ? articleLiquidityIssue(
+        amount,
+        BigInt(fiber.channels.buyer?.local_balance ?? 0),
+        BigInt(fiber.channels.seller?.remote_balance ?? 0),
+      )
+    : null;
+  const pending =
+    !content && (submitting || (Boolean(article.attempt) && !failed));
   const words = (content || article.preview)
     .trim()
     .split(/\s+/)
@@ -102,7 +114,15 @@ function ArticleReader({ article }: { article: Article }) {
 
   const submitPurchase = async () => {
     const buyer = fiber.getNode("buyer");
-    if (!buyer || !fiber.routeReady || fiber.busy || checkoutOpen.current || closed || liquidityIssue) return;
+    if (
+      !buyer ||
+      !fiber.routeReady ||
+      fiber.busy ||
+      checkoutOpen.current ||
+      closed ||
+      liquidityIssue
+    )
+      return;
     checkoutOpen.current = true;
     setCheckoutError("");
     setPreparingInvoice(true);
@@ -111,13 +131,16 @@ function ArticleReader({ article }: { article: Article }) {
       const invoice = await validateOffer(buyer, offer, amount);
       const invoiceAmount = BigInt(invoice.amount ?? 0);
       const invoicePrice = formatArticlePrice(invoiceAmount);
-      const total = formatArticlePrice(invoiceAmount + MAX_ROUTING_FEE_SHANNONS);
+      const total = formatArticlePrice(
+        invoiceAmount + MAX_ROUTING_FEE_SHANNONS,
+      );
       const expiresAt = encryptedInvoiceExpiresAt(invoice);
       if (expiresAt !== undefined && expiresAt <= BigInt(Date.now())) {
         setInvoiceExpired(true);
         return;
       }
-      const expiry = expiresAt === undefined ? undefined : new Date(Number(expiresAt));
+      const expiry =
+        expiresAt === undefined ? undefined : new Date(Number(expiresAt));
       setPreparingInvoice(false);
       const accepted = await ui.confirm({
         heading: "FIBER TESTNET INVOICE",
@@ -125,8 +148,22 @@ function ArticleReader({ article }: { article: Article }) {
         description: article.attempt
           ? "The previous payment failed. Confirm to try again."
           : "The full story opens automatically once your payment is confirmed.",
-        details: <ArticleInvoice invoice={offer.invoice} price={invoicePrice} fee={fee} total={total}
-          expiresAt={expiry && Number.isFinite(expiry.getTime()) ? expiry.toLocaleString("en", { dateStyle: "medium", timeStyle: "short" }) : undefined} />,
+        details: (
+          <ArticleInvoice
+            invoice={offer.invoice}
+            price={invoicePrice}
+            fee={fee}
+            total={total}
+            expiresAt={
+              expiry && Number.isFinite(expiry.getTime())
+                ? expiry.toLocaleString("en", {
+                    dateStyle: "medium",
+                    timeStyle: "short",
+                  })
+                : undefined
+            }
+          />
+        ),
         cancelLabel: "Back to preview",
         confirmLabel: `Pay ${invoicePrice} CKB`,
       });
@@ -140,7 +177,9 @@ function ArticleReader({ article }: { article: Article }) {
         await fiber.run(() => purchase(article));
       }
     } catch {
-      setCheckoutError("We couldn’t open this invoice. Try again or return to Explore.");
+      setCheckoutError(
+        "We couldn’t open this invoice. Try again or return to Explore.",
+      );
     } finally {
       setPreparingInvoice(false);
       setSubmitting(false);
@@ -165,8 +204,10 @@ function ArticleReader({ article }: { article: Article }) {
             <div>
               <strong>{article.author}</strong>
               <small>
-                {article.created ? dateFormatter.format(article.created) : 'Demo guide'} · {readingMinutes} min
-                read
+                {article.created
+                  ? dateFormatter.format(article.created)
+                  : "Demo guide"}{" "}
+                · {readingMinutes} min read
               </small>
             </div>
           </div>
@@ -183,7 +224,13 @@ function ArticleReader({ article }: { article: Article }) {
         data-unlocked={content ? "true" : undefined}
       >
         <div className="article-story">
-          {source && <p className="muted">Source: <a href={source}>Fiber Network documentation</a>.{source.endsWith('/how-it-works') && ' Open the original page to use the interactive simulators.'}</p>}
+          {source && (
+            <p className="muted">
+              Source: <a href={source}>Fiber Network documentation</a>.
+              {source.endsWith("/how-it-works") &&
+                " Open the original page to use the interactive simulators."}
+            </p>
+          )}
           {!content && (
             <section
               className="article-preview"
@@ -198,9 +245,19 @@ function ArticleReader({ article }: { article: Article }) {
 
           {content ? (
             <section className="article-content">
-              <div className="article-prose">{article.markdown || source ? (
-                <DemoMarkdown text={article.markdown || article.demoRevision ? `${article.preview}\n\n${content}` : content} />
-              ) : content}</div>
+              <div className="article-prose">
+                {article.markdown || source ? (
+                  <DemoMarkdown
+                    text={
+                      article.markdown || article.demoRevision
+                        ? `${article.preview}\n\n${content}`
+                        : content
+                    }
+                  />
+                ) : (
+                  content
+                )}
+              </div>
             </section>
           ) : null}
         </div>
@@ -230,7 +287,12 @@ function ArticleReader({ article }: { article: Article }) {
                   failed, so you can retry safely.
                 </p>
                 <button
-                  disabled={fiber.busy || preparingInvoice || !fiber.routeReady || Boolean(liquidityIssue)}
+                  disabled={
+                    fiber.busy ||
+                    preparingInvoice ||
+                    !fiber.routeReady ||
+                    Boolean(liquidityIssue)
+                  }
                   onClick={() => void submitPurchase()}
                 >
                   {preparingInvoice ? "Opening invoice…" : "Retry payment"}
@@ -252,7 +314,11 @@ function ArticleReader({ article }: { article: Article }) {
                   aria-hidden="true"
                 />
                 <p className="eyebrow">CHECKING YOUR ACCESS</p>
-                <h2 role="status">{submitting || receipt ? "Confirming your payment…" : "Checking your existing payment…"}</h2>
+                <h2 role="status">
+                  {submitting || receipt
+                    ? "Confirming your payment…"
+                    : "Checking your existing payment…"}
+                </h2>
                 <p>
                   The full story stays encrypted while we verify your payment.
                 </p>
@@ -269,23 +335,48 @@ function ArticleReader({ article }: { article: Article }) {
                 <span className="access-icon" aria-hidden="true">
                   ×
                 </span>
-                <p className="eyebrow">{replaced ? "OFFER REPLACED" : "OFFER EXPIRED"}</p>
+                <p className="eyebrow">
+                  {replaced ? "OFFER REPLACED" : "OFFER EXPIRED"}
+                </p>
                 <h2>This checkout has closed.</h2>
-                <p>{replaced ? "The writer published a new offer for this story." : "Ask the writer for a fresh offer or choose another story."}</p>
-                <Link className="button-link button-secondary" href={article.supersededBy ? `/article/${article.supersededBy}` : "/explore"}>
-                  {replaced ? "View replacement offer" : "Browse fresh articles"}
+                <p>
+                  {replaced
+                    ? "The writer published a new offer for this story."
+                    : "Ask the writer for a fresh offer or choose another story."}
+                </p>
+                <Link
+                  className="button-link button-secondary"
+                  href={
+                    article.supersededBy
+                      ? `/article/${article.supersededBy}`
+                      : "/explore"
+                  }
+                >
+                  {replaced
+                    ? "View replacement offer"
+                    : "Browse fresh articles"}
                 </Link>
               </>
             ) : (
               <>
                 <p className="eyebrow">ENCRYPTED UNTIL PAID</p>
                 <h2>The full story is encrypted</h2>
-                <p>Enjoy the free preview, or unlock the rest with a one-time payment.</p>
+                <p>
+                  Enjoy the free preview, or unlock the rest with a one-time
+                  payment.
+                </p>
                 <button
-                  disabled={fiber.busy || preparingInvoice || !fiber.routeReady || Boolean(liquidityIssue)}
+                  disabled={
+                    fiber.busy ||
+                    preparingInvoice ||
+                    !fiber.routeReady ||
+                    Boolean(liquidityIssue)
+                  }
                   onClick={() => void submitPurchase()}
                 >
-                  {preparingInvoice ? "Opening invoice…" : `Unlock for ${price} CKB`}
+                  {preparingInvoice
+                    ? "Opening invoice…"
+                    : `Unlock for ${price} CKB`}
                 </button>
                 {!fiber.routeReady && (
                   <>
@@ -304,8 +395,17 @@ function ArticleReader({ article }: { article: Article }) {
                 )}
               </>
             )}
-            {liquidityIssue && !closed && !pending && <p className="access-note">{liquidityIssue} <Link href="/setup">View payment capacity</Link></p>}
-            {checkoutError && <p className="access-note" role="alert">{checkoutError}</p>}
+            {liquidityIssue && !closed && !pending && (
+              <p className="access-note">
+                {liquidityIssue}{" "}
+                <Link href="/setup">View payment capacity</Link>
+              </p>
+            )}
+            {checkoutError && (
+              <p className="access-note" role="alert">
+                {checkoutError}
+              </p>
+            )}
           </aside>
         )}
       </div>

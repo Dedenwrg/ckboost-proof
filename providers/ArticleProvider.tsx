@@ -22,7 +22,10 @@ import {
   type Article,
 } from "../lib/articles";
 import { blank, type Draft } from "../lib/article-draft";
-import { articleLiquidityIssue, parseArticlePrice } from "../lib/payment-config";
+import {
+  articleLiquidityIssue,
+  parseArticlePrice,
+} from "../lib/payment-config";
 import { useFiber } from "./FiberProvider";
 
 type ArticleContextValue = {
@@ -52,13 +55,23 @@ export function ArticleProvider({ children }: { children: React.ReactNode }) {
   const [offerClock, setOfferClock] = useState(Date.now);
   const expiredArticleIds = useMemo(() => {
     const now = Math.max(offerClock, Date.now());
-    return new Set(articles.filter((article) => isArticleOfferExpired(article, now)).map((article) => article.id));
+    return new Set(
+      articles
+        .filter((article) => isArticleOfferExpired(article, now))
+        .map((article) => article.id),
+    );
   }, [articles, offerClock]);
-  const nextExpiry = Math.min(...articles.filter((article) => !expiredArticleIds.has(article.id))
-    .map(articleOfferExpiresAt));
+  const nextExpiry = Math.min(
+    ...articles
+      .filter((article) => !expiredArticleIds.has(article.id))
+      .map(articleOfferExpiresAt),
+  );
   useEffect(() => {
     if (!Number.isFinite(nextExpiry)) return;
-    const timer = window.setTimeout(() => setOfferClock(Date.now()), Math.max(0, nextExpiry - Date.now()) + 25);
+    const timer = window.setTimeout(
+      () => setOfferClock(Date.now()),
+      Math.max(0, nextExpiry - Date.now()) + 25,
+    );
     return () => window.clearTimeout(timer);
   }, [nextExpiry]);
 
@@ -98,10 +111,20 @@ export function ArticleProvider({ children }: { children: React.ReactNode }) {
     const amount = parseArticlePrice(draft.price);
     if (amount === null) throw new Error("Enter a valid article price in CKB.");
     const replacesId = draft.replacesId;
-    if (replacesId && !articlesRef.current.some((item) => item.id === replacesId && !item.supersededBy)) {
+    if (
+      replacesId &&
+      !articlesRef.current.some(
+        (item) => item.id === replacesId && !item.supersededBy,
+      )
+    ) {
       throw new Error("This offer already has a replacement.");
     }
-    const { raw, expiresAt } = await createOffer(seller, sellerChannel, content, amount);
+    const { raw, expiresAt } = await createOffer(
+      seller,
+      sellerChannel,
+      content,
+      amount,
+    );
     const article: Article = {
       id: crypto.randomUUID(),
       title: title.trim(),
@@ -117,7 +140,8 @@ export function ArticleProvider({ children }: { children: React.ReactNode }) {
       attempt: "",
     };
     const previous = articlesRef.current.map((item) =>
-      item.id === replacesId ? { ...item, supersededBy: article.id } : item);
+      item.id === replacesId ? { ...item, supersededBy: article.id } : item,
+    );
     persist([...previous, article]);
     setDraft({ ...blank });
     fiber.setStatus("Article published.");
@@ -126,7 +150,9 @@ export function ArticleProvider({ children }: { children: React.ReactNode }) {
 
   const purchase = useCallback(
     async (article: Article, check = false) => {
-      const current = articlesRef.current.find((item) => item.id === article.id);
+      const current = articlesRef.current.find(
+        (item) => item.id === article.id,
+      );
       if (!current) throw new Error("This article is unavailable.");
       const buyer = fiber.getNode("buyer");
       if (!buyer) throw new Error("Start your buyer node in Network setup.");
@@ -135,15 +161,23 @@ export function ArticleProvider({ children }: { children: React.ReactNode }) {
       let result: GetPaymentResult;
       if (check) {
         if (!current.attempt) return;
-        if (current.attempt.toLowerCase() !== offer.paymentHash.toLowerCase()) throw new Error("Restore the offer for the previous payment.");
+        if (current.attempt.toLowerCase() !== offer.paymentHash.toLowerCase())
+          throw new Error("Restore the offer for the previous payment.");
         await validateOffer(buyer, offer, amount);
         result = await buyer.getPayment({ payment_hash: offer.paymentHash });
       } else {
         if (!fiber.routeReady) throw new Error("Complete network setup first.");
-        if (current.supersededBy) throw new Error("This offer has been replaced. Open the latest offer.");
+        if (current.supersededBy)
+          throw new Error(
+            "This offer has been replaced. Open the latest offer.",
+          );
         const buyerChannel = fiber.channels.buyer;
         const sellerChannel = fiber.channels.seller;
-        const issue = articleLiquidityIssue(amount, BigInt(buyerChannel?.local_balance ?? 0), BigInt(sellerChannel?.remote_balance ?? 0));
+        const issue = articleLiquidityIssue(
+          amount,
+          BigInt(buyerChannel?.local_balance ?? 0),
+          BigInt(sellerChannel?.remote_balance ?? 0),
+        );
         if (issue) throw new Error(issue);
         result = await payForOffer(
           buyer,
@@ -195,7 +229,16 @@ export function ArticleProvider({ children }: { children: React.ReactNode }) {
       publish,
       purchase,
     }),
-    [articles, draft, receipts, unlocked, catalogLoaded, expiredArticleIds, publish, purchase],
+    [
+      articles,
+      draft,
+      receipts,
+      unlocked,
+      catalogLoaded,
+      expiredArticleIds,
+      publish,
+      purchase,
+    ],
   );
 
   return (

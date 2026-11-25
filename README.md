@@ -1,74 +1,81 @@
 # UNSEAL
 
-**Free previews. One-time payments. Full stories.**
+UNSEAL is a publishing demo for **Fiber Quest 2 (Advanced)**. A writer publishes an article with a free preview and an encrypted full story. A reader pays a Fiber Testnet invoice, and the payment reveals the key that unlocks the article in their browser.
 
-UNSEAL is an article marketplace demo built for Fiber Quest 2 (Advanced). Writers publish encrypted articles, readers preview them for free, and a successful Fiber Testnet payment unlocks the full story in the browser.
+**[Open the live demo](https://fiber-demo.adanothe.com/)** · [Walk through the demo](#demo-walkthrough) · [Run locally](#run-locally)
 
 <!-- Add the Quest 2 screen-recording link here before submission. -->
 
+## Demo walkthrough
+
+The hosted demo and local app support the same workflow. Use one browser tab for the full demo so the Reading and Publishing accounts stay together.
+
+1. **Prepare the two accounts.** On Home, select **Get started with the demo**. Use the faucet for each account that needs funds, then confirm channel opening when prompted. Each new channel requires 500 Testnet CKB plus an on-chain fee. Wait for **Payments ready**.
+2. **Publish an article.** Open **Seller Studio → Start writing**. Write your own article or choose a Markdown template, set a price, and select **Review article → Publish article**. The **Encrypted offer published** screen shows the offer details.
+3. **Open the buyer view.** Select **View as reader** to see the free preview and the locked story. Select **Unlock**, review the invoice and the maximum fee, then confirm the payment.
+4. **Read the result.** The full story appears when payment succeeds and decryption completes. Open **My Library** to find it again.
+
 ## What changed from the starter
 
-UNSEAL turns the [encrypted data payment starter](https://www.fiber.world/docs/build/encrypted-data-payment) into a complete writing and reading flow.
+The [encrypted data payment starter](https://www.fiber.world/docs/build/encrypted-data-payment) demonstrates the payment and decryption exchange. UNSEAL adapts it into an article marketplace, taking the seller from draft to encrypted offer and the buyer from preview to unlocked article through the UI.
 
-| Feature | What you can do |
+| Feature | What it adds |
 | --- | --- |
-| **Seller Studio** | Write from scratch or use a Markdown template, set a price in CKB, review the article, and publish an encrypted offer. |
-| **Explore** | Search and filter articles, then open a free preview. Expired and replaced local offers are hidden from Explore. |
-| **Checkout** | Review the Fiber Testnet invoice, including price, routing fee limit, and expiry, before confirming payment. |
-| **My Library** | Reopen unlocked articles or recover access by checking a payment already recorded in the same browser profile. |
-| **Payments** | Follow guided startup and view the accounts’ connection status and capacity to send or receive. |
+| **Seller Studio** | Editable Markdown templates, a free preview and premium body, custom CKB prices, and an offer summary after publishing. |
+| **Explore** | Search and category filters for discovering articles. Expired and replaced local offers are hidden from the list. |
+| **Checkout** | A readable invoice summary with article price, maximum routing fee, maximum total, and expiry when available. |
+| **My Library** | A place to reopen paid stories or recover a recorded payment after reloading the same browser profile. |
+| **Payments** | Guided Testnet setup and a status page for channel readiness and the capacity to send or receive. |
 
-## Run locally
+## Architecture and payment flow
 
-Use **Node.js 22.18+**, npm, and a current Chromium browser. From the repository root:
+Next.js serves the interface and the optional shared catalog API. The two Fiber nodes run in the browser through `@fiber-pay/sdk`. **Reading** sends payments, **Publishing** creates invoices and receives payments, and **Bottle** routes payments between their channels on Testnet.
 
-```sh
-npm install
-npm run dev
-```
+### How payment unlocks an article
 
-Open [localhost:3001](http://localhost:3001) and select **Get started with the demo**. The guide prepares two local accounts, **Reading** and **Publishing**. Use the linked faucet if either needs Testnet CKB, then confirm channel opening when prompted. Each new channel requires 500 Testnet CKB plus an on-chain fee. Wait for **Payments ready** before publishing or buying.
+1. **Encrypt the premium text.** When the writer publishes, UNSEAL generates a key and encrypts the full story with AES-256-GCM. The title and free preview remain readable.
+2. **Create the offer.** The Publishing node creates a Fiber Testnet invoice at the writer’s chosen price. The encryption key is used as the invoice’s payment preimage. UNSEAL saves the invoice and encrypted story in the local offer.
+3. **Validate before checkout.** The Reading node checks the invoice network, amount, and payment hash against the offer. The reader sees the price and fee limit before confirming.
+4. **Record and send.** UNSEAL saves the attempt before sending the payment through Bottle. A pending or uncertain attempt can be checked using its existing payment record.
+5. **Decrypt after confirmation.** Once Fiber reports success and returns the preimage, UNSEAL uses it as the decryption key. The full story replaces the locked preview.
+6. **Recover access later.** After a reload, UNSEAL reconnects the saved accounts. **My Library** can reopen the article and recover the key from the settled payment. Invoice expiry closes new checkout while existing settled access remains recoverable.
 
-Use localhost or HTTPS so the browser can run the Fiber WebAssembly runtime. The app sets the required cross-origin isolation headers.
+### Where the data lives
 
-## Try the full flow
+| Location | Data |
+| --- | --- |
+| **Browser profile** | Saved node identities, local offers, and payment attempts. |
+| **Shared catalog server** | Public titles, author names, categories, previews, and listed prices for articles shared by a seller. |
 
-1. Open **Seller Studio → Start writing**. Write an article or choose a template, set a price, and select **Review article → Publish article**.
-2. On **Encrypted offer published**, select **View as reader**. Read the free preview and confirm the full story is locked.
-3. Select **Unlock**, review the invoice, and confirm payment. Once Fiber reports success, UNSEAL uses the key revealed by that payment to decrypt and display the article.
-4. Open **My Library** to find the article again. If a payment is still pending, use **Check payment status** to look up the existing attempt.
-
-## Architecture
-
-```text
-Reading node ── Fiber Testnet payment via Bottle ──► Publishing node
-     │                                                 │
-     └─ Verified payment reveals the decryption key    └─ Creates an encrypted offer
-```
-
-- **Browser:** Next.js renders the interface, and `@fiber-pay/sdk` runs the two local Fiber nodes. Browser storage keeps their identities, the local catalog, and payment attempts so the app can reconnect the saved accounts and recover purchases after a reload.
-- **Publish and unlock:** The Publishing account encrypts the premium text with AES-256-GCM and creates an invoice tied to the encryption key. The Reading account validates the invoice, records the payment attempt, and decrypts the text after receiving the key from a successful payment.
-- **Optional shared catalog:** A server API shares public metadata and previews between browsers. The demo’s paid checkout uses the local offers on the browser that published them.
+The shared catalog lets a second browser discover and read a preview. The paid demo uses a local offer in the browser profile where it was published.
 
 <details>
-<summary>Enable the optional shared preview catalog</summary>
+<summary>Configure the optional shared catalog</summary>
 
-Set `CATALOG_PUBLISH_TOKEN` in `.env.local` to a random secret of at least 32 characters and restart the server. After publishing an article, open **Share preview in Explore** and enter the token. Use HTTPS when accessing the app remotely.
+Set `CATALOG_PUBLISH_TOKEN` in `.env.local` to a random secret of at least 32 characters and restart the server. After publishing, select **Share preview in Explore** and enter the token. Use HTTPS for remote access.
 
-`GET /api/articles` lists shared previews, and `GET /api/articles/:id` reads one. `POST /api/articles` requires the publishing token. The server stores public listings in `.catalog-data/` by default. Set `CATALOG_DATA_DIR` to a persistent writable directory for a single-server deployment.
+`GET /api/articles` lists public previews and `GET /api/articles/:id` fetches one. `POST /api/articles` shares a preview with the configured bearer token.
+
+Listings are saved in `.catalog-data/` by default. For a single-server deployment, set `CATALOG_DATA_DIR` to a persistent writable directory.
 
 </details>
 
-## Troubleshooting
+## Run locally
 
-- **Setup is still waiting:** Faucet transfers and channel confirmations can take a few minutes.
-- **Payment is still pending:** Check the existing payment from the article or My Library.
-- **The app is open in another tab:** Close the other tab before reconnecting. Keep browser data for the profile that owns your funded channels.
-
-## Development checks
+Use **Node.js 22.18+**, npm, and a current Chromium browser. From the project root, run:
 
 ```sh
-npm run typecheck
-npm test
-npm run build
+npm ci
+npm run dev
 ```
+
+Open [localhost:3001](http://localhost:3001) and follow the [demo walkthrough](#demo-walkthrough). The Fiber browser runtime requires a secure context and cross-origin isolation. Use localhost or HTTPS. The required headers are configured in [next.config.mjs](next.config.mjs).
+
+For a production-mode check, run `npm run build` followed by `npm start` and open the URL printed by Next.js. Run `npm run typecheck` and `npm test` for the development checks.
+
+## Troubleshooting
+
+- **Setup is waiting.** Faucet transfers and channel opening can take a few minutes. Return to the setup tab so it can update the account balances.
+- **Payment is still pending.** From the article, select **Check payment status** to look up the same attempt.
+- **The app is open in another tab.** Close the other tab and reconnect. Keep the browser data for the profile that owns your funded channels.
+- **The deployed app can’t start the node.** Check HTTPS and confirm the proxy preserves the cross-origin isolation headers from the Next.js configuration.

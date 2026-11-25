@@ -1,25 +1,25 @@
-import type { FiberBrowserNode } from '@fiber-pay/sdk/browser';
-import { CHANNEL_FUNDING_SHANNONS } from './payment-config.ts';
+import type { FiberBrowserNode } from "@fiber-pay/sdk/browser";
+import { CHANNEL_FUNDING_SHANNONS } from "./payment-config.ts";
 
 export const channelFundingGuidance =
-  'Fund this address with more than 500 Testnet CKB. Opening the channel uses 500 CKB plus a separate on-chain transaction fee.';
+  "Fund this address with more than 500 Testnet CKB. Opening the channel uses 500 CKB plus a separate on-chain transaction fee.";
 
 export async function readTestnetBalance(node: FiberBrowserNode) {
   const { default_funding_lock_script: script } = await node.nodeInfo();
-  const response = await fetch('https://testnet.ckbapp.dev/', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+  const response = await fetch("https://testnet.ckbapp.dev/", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
     signal: AbortSignal.timeout(10_000),
     body: JSON.stringify({
-      jsonrpc: '2.0',
+      jsonrpc: "2.0",
       id: 1,
-      method: 'get_cells_capacity',
-      params: [{ script, script_type: 'lock' }],
+      method: "get_cells_capacity",
+      params: [{ script, script_type: "lock" }],
     }),
   });
   const { result } = await response.json();
-  if (!response.ok || typeof result?.capacity !== 'string') {
-    throw new Error('Could not check the Testnet balance. Try again.');
+  if (!response.ok || typeof result?.capacity !== "string") {
+    throw new Error("Could not check the Testnet balance. Try again.");
   }
   return BigInt(result.capacity);
 }

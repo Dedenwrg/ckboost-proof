@@ -1,4 +1,6 @@
-export const CHANNEL_POLL_DELAYS_MS = [3_000, 5_000, 8_000, 13_000, 20_000, 20_000, 20_000, 20_000] as const;
+export const CHANNEL_POLL_DELAYS_MS = [
+  3_000, 5_000, 8_000, 13_000, 20_000, 20_000, 20_000, 20_000,
+] as const;
 
 type TimerHandle = ReturnType<typeof setTimeout>;
 type TimerApi = {
@@ -21,14 +23,20 @@ export function createBoundedPoller(
 
   const poll = async (attempt: number) => {
     if (stopped || attempt >= delays.length) return;
-    try { await task(); } catch { /* Temporary failures are retried by the bounded schedule. */ }
+    try {
+      await task();
+    } catch {
+      /* Temporary failures are retried by the bounded schedule. */
+    }
     if (!stopped && attempt + 1 < delays.length) {
       timer = timers.set(() => void poll(attempt + 1), delays[attempt]);
     }
   };
 
   return {
-    start() { void poll(0); },
+    start() {
+      void poll(0);
+    },
     stop() {
       stopped = true;
       if (timer !== undefined) timers.clear(timer);
