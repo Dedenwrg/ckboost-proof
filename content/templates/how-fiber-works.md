@@ -1,0 +1,67 @@
+# How Fiber Network Works
+
+Author: Fiber Network Docs
+Category: Fiber
+Source: https://www.fiber.world/docs/how-it-works
+
+Fiber Network uses payment channels to move frequent transfers off-chain while using CKB for settlement and enforcement. Participants lock assets on-chain when opening a channel, exchange signed state updates directly while the channel is active, and return to Layer 1 when closing or disputing the channel.
+
+<!-- paywall -->
+
+This page explains the core mechanisms behind Fiber: payment channels, multi-hop routing, and the difference between off-chain transfers and on-chain settlement.
+
+## Payment Channels
+
+A payment channel is a direct relationship between two participants. To open a channel, the participants lock assets into a shared on-chain Script. A normal channel reserves CKB from each side; a private one-way channel can be funded entirely by its initiator. This funding transaction defines the initial state of the channel.
+
+After the channel is opened, participants can start exchanging payments off-chain. Instead of sending every payment to Layer 1, they keep track of the latest balance between themselves and only submit the final result when the channel is closed.
+
+When both participants agree to close the channel, the latest mutually signed state is submitted on-chain for settlement. If one participant attempts to close with an outdated state, the on-chain Script enforces the dispute rules and allows the counterparty to challenge it.
+
+---
+
+The simulator below illustrates the lifecycle of a payment channel.
+
+Note: For visual clarity, this demo allows up to 7 channels between Node 1 and Node 2. In practice, multiple channels can exist between the same pair of nodes.
+
+Use the simulator to observe the channel lifecycle:
+
+1. Select Node 1 and Node 2.
+2. Click **"Open Channel"** to simulate a Layer 1 funding transaction.
+3. Send off-chain updates and observe the Layer 2 transaction count.
+4. Select a channel and click **"Close Channel"** to simulate Layer 1 settlement.
+
+
+## Multi-Hop Routing
+
+While a payment channel enables transfers between two participants, Fiber operates as a network of interconnected channels. A direct channel between sender and receiver is not required; if a path with sufficient liquidity exists, a payment can be forwarded through intermediate participants.
+
+For example, Alice does not need a direct channel with Carol. If Alice has a channel with Bob, and Bob has a channel with Carol, Bob can forward the payment as an intermediate node.
+
+In a multi-hop payment, each intermediary forwards a conditional transfer to the next hop along the route. These transfers are locked under cryptographic conditions and can only be claimed if a required secret is revealed within a defined time window. This ensures that all hops along the path either complete successfully or are safely reverted.
+
+Only the nodes involved in the selected path participate in the transaction, and no network-wide consensus is required. Payments therefore traverse the network off-chain while remaining cryptographically enforceable.
+
+---
+
+The simulator below demonstrates multi-hop routing. By clicking **"Trigger Sample Transaction,"** you can observe a transaction being forwarded across intermediate nodes without interacting with Layer 1.
+
+## Interactive Network Simulation
+
+This simulator combines the previous concepts in one view. You can open and close channels, trigger routed payments, and observe when activity happens off-chain versus when it requires Layer 1 settlement.
+
+Note: For visual clarity, this demo displays only one channel between two nodes. In practice, multiple channels can exist between the same pair of nodes.
+
+Experiment by:
+
+- Opening channels between **unconnected nodes**
+- Triggering transactions across connected paths
+- Closing channels and observing Layer 1 settlement
+
+Notice that:
+
+- Layer 2 transaction count increases during off-chain transfers.
+- Layer 1 operations change only when channels are opened or closed.
+
+
+[What is Fiber Network? Previous Page](https://www.fiber.world/docs) [Run a Fiber Node What it means to run a Fiber node, the available node forms, and how to pick the right deployment for your use case](https://www.fiber.world/docs/quick-start/run-a-node)

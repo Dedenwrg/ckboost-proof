@@ -1,0 +1,71 @@
+# What is Fiber Network?
+
+Author: Fiber Network Docs
+Category: Fiber
+Source: https://www.fiber.world/docs
+
+Fiber Network is a peer-to-peer payment and swap network built on Nervos CKB. Similar to the Lightning Network, it uses payment channels to move repeated transfers off-chain and reduce the need to submit every payment to Layer 1. Unlike single-asset payment networks, Fiber is designed to support multi-asset payments, stablecoin transfers, asset swaps, and Bitcoin-aligned financial applications.
+
+<!-- paywall -->
+
+Fiber Network addresses the limitations of using Layer 1 transactions for small, frequent, or time-sensitive payments. While blockchains provide strong settlement guarantees, submitting every payment or balance update on-chain can introduce latency, cost, and scalability constraints.
+
+By using CKB as the settlement and enforcement layer, Fiber allows participants to lock assets when opening a channel, exchange signed state updates directly during the channel’s lifetime, and return to Layer 1 only when closing or disputing the channel. This makes Fiber suitable for applications that require low-cost payments, fast settlement experiences, and flexible asset movement.
+
+[Fiber Network Node (FNN)](https://github.com/nervosnetwork/fiber) is the reference node implementation of the Fiber Network Protocol (FNP).
+
+## Features
+
+- **Multi-asset payments and swaps**: Fiber supports multiple asset types, including stablecoins, RGB++ assets issued on the Bitcoin ledger, and UDT assets issued on the CKB ledger. Users can transfer supported assets through payment channels and perform swaps when a channel path with sufficient liquidity is available.
+- **Cross-network interoperability**: Fiber is designed to support payments and swaps across compatible payment channel networks, including flows between the Lightning Network and Fiber Network.
+- **Low-cost, low-latency transfers**: Fiber enables low-cost micropayments by moving repeated transfers off-chain. Payments are processed directly between involved peers, allowing transfers to complete with low latency and without requiring network-wide consensus for each update.
+- **Multi-hop routing**: Payments do not require a direct channel between sender and receiver. If a route with sufficient liquidity exists, payments can be forwarded through intermediate nodes. Node operators can participate in routing and earn fees for forwarding payments.
+- **Privacy-by-default design**: Fiber transactions are only visible to the peers involved in the selected payment path. Because transfers do not require global broadcast or network-wide consensus, Fiber can provide improved transaction privacy compared with fully on-chain payment flows.
+- **Watchtower support**: Fiber supports watchtower services to help monitor channels and protect users when they are offline. This improves operational safety for users and node operators.
+- **HTLC-based payment security**: Fiber currently uses HTLC-based mechanisms to secure conditional payments and maintain compatibility with Lightning-style flows. Future protocol work may introduce PTLC-based mechanisms to improve privacy and security.
+- **CKB Script composability**: Fiber channels are built on CKB Scripts, allowing payment channel logic to compose with CKB’s programmable contract model.
+
+## What Can You Build With Fiber?
+
+Fiber is useful for applications where payments need to be fast, frequent, low-cost, or programmable. The examples below highlight community-built demos that explore different ways to use Fiber in real applications.
+
+### Usage-Based Payments
+
+Fiber can support applications where users pay according to actual usage, such as per second, per page, per request, or per unit consumed.
+
+- [Fiber Audio Player](https://fiber-audio-player.vercel.app/) demonstrates per-second micropayments for self-hosted audio and podcast services.
+- [EV Charging](https://github.com/HappySonnyDev/fiber-charge-sim) applies usage-based micropayments to an EV charging simulation.
+
+### Checkout and Access Control
+
+Fiber can be used to accept low-fee payments and unlock digital goods, services, protected resources, or application features.
+
+- [Fiber Checkout](https://fiber-checkout.vercel.app/) provides a Stripe-style payment experience for React and Next.js applications.
+- [Fiber L402](https://fiber-l402-web.vercel.app/) explores payment-based access control for online content and services.
+
+### Community and Creator Payments
+
+Fiber can support small social payments such as tips, rewards, creator support, memberships, and community incentives.
+
+- [Fiber Link](https://fiberlink.me/) demonstrates tipping and micropayments inside community platforms.
+
+### Interactive and Autonomous Payments
+
+Fiber can support payment flows triggered by games, software agents, connected devices, or other application logic.
+
+- [Micro-payment Game](https://github.com/nervosnetwork/fiber-docs/tree/master/example/simple-game) shows how Fiber can support instant in-game micropayments.
+- [Fiber Pay](https://www.npmjs.com/package/@fiber-pay/cli) provides an AI-friendly payment toolchain.
+- [FiberAgentPay](https://github.com/Jeremicarose/FiberAgentPay) explores agent-to-agent commerce over Fiber.
+- [Fiber402](https://github.com/David-Pjs/fiber402) explores machine-driven payment flows for paid data access.
+
+### Network Operations and Developer Tools
+
+Fiber also creates opportunities for tools that help developers and node operators understand, integrate, and manage the network. Useful directions include dashboards, node setup tools, liquidity management interfaces, routing monitors, watchtower services, SDKs, testing tools, and local development environments.
+
+- [Fiber Dashboard](https://dashboard.fiber.channel/) provides a real-time view into Fiber network structure and activity.
+- [Fiber Studio](https://fiber-desktop.vercel.app/) wraps the official FNN binary in a guided desktop UI, allowing users to run a Nervos CKB payment-channel node without touching the terminal.
+
+For more community-built demos and examples, see the [Showcase](https://www.fiber.world/showcase).
+
+
+[How Fiber Network Works Next Page](https://www.fiber.world/docs/how-it-works)
